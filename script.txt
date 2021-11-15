@@ -1,0 +1,158 @@
+'use strict';
+const users = new Array();
+const firstname = document.querySelector('.FIRSTNAME');
+const firstnameerror = document.querySelector('.FIRSTNAMEERROR');
+const lastname = document.querySelector('.LASTNAME');
+const lastnameerror = document.querySelector('.LASTNAMEERROR');
+const username = document.querySelector('.USERNAME');
+const usernameerror = document.querySelector('.USERNAMEERROR');
+const password = document.querySelector('.PASSWORD');
+const password2 = document.querySelector('.PASSWORD2');
+const passworderror = document.querySelector('.PASSWORDERROR');
+const hint = document.querySelector('.HINT');
+const signup = document.querySelector('.SIGNUP');
+
+const clearform = function () {
+  firstname.value = '';
+  firstnameerror.textContent = '';
+  lastname.value = '';
+  lastnameerror.textContent = '';
+  username.value = '';
+  usernameerror.textContent = '';
+  password.value = '';
+  password2.value = '';
+  passworderror.textContent = '';
+};
+//begin of users refference database
+const Users = function () {
+  const user1 = {
+    type: 'Manager',
+    FirstName: 'GADI',
+    LastName: 'WUNSCH',
+    UserName: 'GadiKing',
+    Password: '1111',
+  };
+  const user2 = {
+    type: 'Manager',
+    FirstName: 'SHAY',
+    LastName: 'ROSENTHAL',
+    UserName: 'ShayPrince',
+    Password: '2222',
+  };
+  const user3 = {
+    type: 'Player',
+    FirstName: 'DAR',
+    LastName: 'HERSH',
+    UserName: 'DarJoker',
+    Password: '3333',
+  };
+
+  users.push(user1);
+  users.push(user2);
+  users.push(user3);
+};
+Users();
+const updateHint = function () {
+  const userlist = users.map(user => user.UserName).join(' , ');
+  hint.textContent = `This is users list: ${userlist}
+...input details and...CLICK HERE`;
+};
+updateHint();
+//end of users refference database
+/*Create managers array from database*/
+const managers = users.filter(user => user.type === 'Manager');
+/*Create Players array from database*/
+const players = users.filter(user => user.type === 'Player');
+/*Check*/ //console.log(managers.map(manager => manager.UserName));
+/*CHeck*/ //console.log(players.map(player => player.UserName));
+//Add new user function
+const newUser = function (details, type) {
+  /*Check*/ //console.log(users);
+  /*Check*/ //console.log(details.UserName);
+
+  let userX = {
+    type: type,
+    FirstName:
+      details?.FirstName[0].toUpperCase() +
+      details?.FirstName.slice(1).toLowerCase(),
+    LastName:
+      details?.LastName[0].toUpperCase() +
+      details?.LastName.slice(1).toLowerCase(),
+    UserName: details.UserName,
+    Password: details.Password,
+  };
+  //userX.LastName[0] = userX.LastName[0].toUpperCase();
+  type === 'Manager' ? managers.push(userX) : '';
+  type === 'Player' ? players.push(userX) : '';
+  users.push(userX);
+  updateHint();
+  clearform();
+};
+//New user details
+const SignIn = {
+  type: 'player',
+  FirstName: '',
+  LastName: '',
+  UserName: '',
+  Password: '',
+};
+const checkusername = function (name) {
+  const correct = name
+    .toLowerCase()
+    .split('')
+    .every(sign => (sign >= 'a' && sign <= 'z' ? true : false));
+  console.log(`Correct: ${correct && name.length > 4}`);
+  return correct && name.length > 4;
+};
+//Hides password typing
+let currentpassword = ['', ''];
+
+const legalnote = note =>
+  (note >= 'a' && note <= 'z') ||
+  (note >= 'A' && note <= 'Z') ||
+  (Number(note) >= 0 && Number(note) <= 9)
+    ? true
+    : false;
+
+const hidepassword = function (password, i) {
+  if (password.value.length > currentpassword[i].length) {
+    currentpassword[i] += password.value[password.value.length - 1];
+    password.value = '*'.repeat(password.value.length);
+  } else {
+    currentpassword[i] = currentpassword[i].slice(0, -1);
+  }
+  currentpassword[0] !== currentpassword[1]
+    ? (passworderror.textContent = 'password arent similar')
+    : (passworderror.textContent = 'password are similar');
+  !currentpassword[i].split('').every(note => legalnote(note))
+    ? (passworderror.textContent = 'Ilegal notes')
+    : '';
+};
+password.addEventListener('input', function () {
+  hidepassword(password, 0);
+});
+password2.addEventListener('input', function () {
+  hidepassword(password2, 1);
+});
+
+signup.addEventListener('click', function (e) {
+  e.preventDefault();
+  SignIn.FirstName = firstname.value;
+  SignIn.LastName = lastname.value;
+  SignIn.UserName = username.value;
+  SignIn.Password = currentpassword[0];
+  checkusername(SignIn.FirstName)
+    ? (firstnameerror.textContent = '')
+    : (firstnameerror.textContent =
+        'illegal firstname, must include 4 letters');
+  checkusername(SignIn.LastName)
+    ? (lastnameerror.textContent = '')
+    : (lastnameerror.textContent = 'illegal lastname, must include 4 letters');
+
+  users.map(user => user.UserName).find(user => user === SignIn.UserName)
+    ? alert('Username is exist')
+    : newUser(SignIn, 'Player');
+  console.log(SignIn);
+});
+/*Check*/ console.log(managers.map(manager => manager.UserName));
+/*Check*/ console.log(players.map(player => player.UserName));
